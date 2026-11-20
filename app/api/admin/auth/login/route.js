@@ -68,7 +68,7 @@ export async function POST(request) {
     const database = getDatabase();
     const user = await database
       .prepare(
-        `SELECT id, email, handle, display_name, password_hash, password_salt, password_iterations
+        `SELECT id, email, handle, display_name, password_hash, password_salt, password_iterations, password_scheme
          FROM users WHERE email = ? AND account_status != 'deactivated' LIMIT 1`,
       )
       .bind(adminEmail)

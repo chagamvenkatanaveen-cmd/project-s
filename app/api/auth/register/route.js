@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { hashPassword, PASSWORD_ITERATIONS } from "@/lib/auth";
+import { hashPassword, PASSWORD_HASH_SCHEME, PASSWORD_ITERATIONS } from "@/lib/auth";
 import { getDatabase } from "@/lib/db";
 import { isValidPassword } from "@/lib/passwordValidation";
 import { isValidUsername } from "@/lib/usernameValidation";
@@ -50,10 +50,10 @@ export async function POST(request) {
     const userInsert = database
       .prepare(
         `INSERT INTO users
-          (id, email, handle, display_name, password_hash, password_salt, password_iterations, account_status, approval_status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 'deactivated', 'approved')`,
+          (id, email, handle, display_name, password_hash, password_salt, password_iterations, password_scheme, account_status, approval_status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'deactivated', 'approved')`,
       )
-      .bind(userId, email, handle, name, hash, salt, PASSWORD_ITERATIONS);
+      .bind(userId, email, handle, name, hash, salt, PASSWORD_ITERATIONS, PASSWORD_HASH_SCHEME);
     await userInsert.run();
 
     return NextResponse.json({

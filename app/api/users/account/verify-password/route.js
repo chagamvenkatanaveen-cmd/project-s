@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   getCurrentUser,
+  PASSWORD_HASH_SCHEME,
   readSessionToken,
   verifyPassword,
 } from "@/lib/auth";
@@ -50,12 +51,24 @@ export async function POST(request) {
 
     const credentials = await database
       .prepare(
-        `SELECT password_hash, password_salt, password_iterations
+        `SELECT password_hash, password_salt, password_iterations, password_scheme
          FROM users WHERE id = ? LIMIT 1`,
       )
       .bind(user.id)
       .first();
-    if (!credentials || !(await verifyPassword(password, credentials))) {
+    if (!credentials) {
+      return NextResponse.json(
+        { success: false, error: "The password you entered is incorrect." },
+        { status: 403 },
+      );
+    }
+    if (credentials.password_scheme !== PASSWORD_HASH_SCHEME) {
+      return NextResponse.json(
+        { success: false, error: "An admin must reset your password before you can continue." },
+        { status: 403 },
+      );
+    }
+    if (!(await verifyPassword(password, credentials))) {
       return NextResponse.json(
         { success: false, error: "The password you entered is incorrect." },
         { status: 403 },

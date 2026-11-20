@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import {
   createSession,
   hashPassword,
+  PASSWORD_HASH_SCHEME,
   PASSWORD_ITERATIONS,
   sessionCookieOptions,
   verifyPassword,
@@ -26,7 +27,7 @@ export async function POST(request) {
     const database = getDatabase();
     const user = await database
       .prepare(
-        `SELECT id, email, handle, display_name, password_hash, password_salt, password_iterations,
+        `SELECT id, email, handle, display_name, password_hash, password_salt, password_iterations, password_scheme,
                 account_status, approval_status
          FROM users
          WHERE (email = ? OR handle = ?)
@@ -45,6 +46,12 @@ export async function POST(request) {
     }
     if (user.approval_status !== "approved") {
       return NextResponse.json({ success: false, error: "Your account is awaiting admin approval." }, { status: 403 });
+    }
+    if (user.password_scheme !== PASSWORD_HASH_SCHEME) {
+      return NextResponse.json(
+        { success: false, error: "Your password must be reset by an admin before you can sign in." },
+        { status: 403 },
+      );
     }
 
     if (!(await verifyPassword(password, user))) {

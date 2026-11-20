@@ -23,6 +23,8 @@ export default function AdminUsersPage() {
   const [selectedUserDetails, setSelectedUserDetails] = useState(null);
   const [isLoadingUserDetails, setIsLoadingUserDetails] = useState(false);
   const [userDetailsError, setUserDetailsError] = useState('');
+  const [userDetailsNotice, setUserDetailsNotice] = useState('');
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
 
   useEffect(() => {
     const requestedFilter = new URLSearchParams(window.location.search).get('filter');
@@ -84,6 +86,7 @@ export default function AdminUsersPage() {
   async function handleOpenUserDetails(user) {
     setSelectedUserDetails(user);
     setUserDetailsError('');
+    setUserDetailsNotice('');
     setIsLoadingUserDetails(true);
     try {
       const response = await fetch(`/api/admin/users/${encodeURIComponent(user.id)}`);
@@ -100,6 +103,44 @@ export default function AdminUsersPage() {
       setUserDetailsError(detailsError.message || 'Unable to load user details.');
     } finally {
       setIsLoadingUserDetails(false);
+    }
+  }
+
+  async function handleResetUserPassword(event) {
+    event.preventDefault();
+    if (!selectedUserDetails) {
+      return;
+    }
+
+    const form = event.currentTarget;
+    const password = new FormData(form).get('password');
+    setUserDetailsError('');
+    setUserDetailsNotice('');
+    setIsResettingPassword(true);
+    try {
+      const response = await fetch(`/api/admin/users/${encodeURIComponent(selectedUserDetails.id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      const result = await response.json();
+      if (response.status === 401) {
+        router.replace('/admin/login');
+        return;
+      }
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Unable to reset the user password.');
+      }
+
+      setSelectedUserDetails((currentUser) => (
+        currentUser ? { ...currentUser, passwordResetRequired: false } : currentUser
+      ));
+      setUserDetailsNotice('Password reset. Share the new password with the user securely.');
+      form.reset();
+    } catch (resetError) {
+      setUserDetailsError(resetError.message || 'Unable to reset the user password.');
+    } finally {
+      setIsResettingPassword(false);
     }
   }
 
@@ -636,6 +677,11 @@ export default function AdminUsersPage() {
                   {userDetailsError}
                 </p>
               )}
+              {userDetailsNotice && (
+                <p role="status" className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+                  {userDetailsNotice}
+                </p>
+              )}
               {isLoadingUserDetails ? (
                 <p className="py-8 text-center text-sm text-[#6b7280]">Loading user details...</p>
               ) : userDetailsError ? null : (
@@ -703,6 +749,36 @@ export default function AdminUsersPage() {
                       </dd>
                     </div>
                   </dl>
+
+                  <section className="mt-7 border-t border-[#e5e7eb] pt-5">
+                    <h3 className="text-sm font-bold text-[#1f2937]">Password access</h3>
+                    <p className="mt-2 text-sm text-[#6b7280]">
+                      {selectedUserDetails.passwordResetRequired
+                        ? 'This account needs a password reset before its owner can sign in.'
+                        : 'Resetting the password ends the user’s existing sessions.'}
+                    </p>
+                    <form onSubmit={handleResetUserPassword} className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
+                      <label className="flex-1 text-sm font-medium text-[#374151]">
+                        New password
+                        <input
+                          name="password"
+                          type="password"
+                          required
+                          minLength={9}
+                          maxLength={128}
+                          autoComplete="new-password"
+                          className="mt-1 w-full rounded-lg border border-[#d1d5db] px-3 py-2"
+                        />
+                      </label>
+                      <button
+                        type="submit"
+                        disabled={isResettingPassword}
+                        className="rounded-lg bg-[#0b3d2a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#126f3e] disabled:cursor-wait disabled:opacity-50"
+                      >
+                        {isResettingPassword ? 'Resetting...' : 'Reset password'}
+                      </button>
+                    </form>
+                  </section>
 
                   <section className="mt-7 border-t border-[#e5e7eb] pt-5">
                     <h3 className="text-sm font-bold text-[#1f2937]">Applied jobs</h3>

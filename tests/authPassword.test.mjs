@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { hashPassword, PASSWORD_ITERATIONS, verifyPassword } from "../lib/auth.js";
+import {
+  hashPassword,
+  PASSWORD_HASH_SCHEME,
+  PASSWORD_ITERATIONS,
+  verifyPassword,
+} from "../lib/auth.js";
 
 test("password hashes can be created and verified", async () => {
   const password = "test-password-123";
@@ -9,37 +14,21 @@ test("password hashes can be created and verified", async () => {
     password_hash: credentials.hash,
     password_salt: credentials.salt,
     password_iterations: PASSWORD_ITERATIONS,
+    password_scheme: credentials.scheme,
   };
 
   assert.equal(await verifyPassword(password, user), true);
   assert.equal(await verifyPassword("different-password", user), false);
 });
 
-test("password verification remains compatible with existing Web Crypto hashes", async () => {
-  const password = "existing-user-password";
-  const salt = Uint8Array.from({ length: 16 }, (_, index) => index);
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(password),
-    "PBKDF2",
+test("legacy PBKDF2 hashes require a password reset", async () => {
+  const credentials = await hashPassword("test-password-123");
+  assert.equal(
+    await verifyPassword("test-password-123", {
+      ...credentials,
+      password_scheme: "pbkdf2-v1",
+    }),
     false,
-    ["deriveBits"],
   );
-  const hash = await crypto.subtle.deriveBits(
-    {
-      name: "PBKDF2",
-      hash: "SHA-256",
-      salt,
-      iterations: PASSWORD_ITERATIONS,
-    },
-    key,
-    256,
-  );
-  const user = {
-    password_hash: Buffer.from(hash).toString("base64url"),
-    password_salt: Buffer.from(salt).toString("base64url"),
-    password_iterations: PASSWORD_ITERATIONS,
-  };
-
-  assert.equal(await verifyPassword(password, user), true);
+  assert.equal(credentials.scheme, PASSWORD_HASH_SCHEME);
 });

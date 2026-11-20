@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getConfiguredAdminEmail, getCurrentAdmin } from "@/lib/adminAuth";
-import { hashPassword, PASSWORD_ITERATIONS } from "@/lib/auth";
+import { hashPassword, PASSWORD_HASH_SCHEME, PASSWORD_ITERATIONS } from "@/lib/auth";
 import { getDatabaseAsync } from "@/lib/db";
 import { isValidPassword } from "@/lib/passwordValidation";
 import { isValidUsername } from "@/lib/usernameValidation";
@@ -35,7 +35,7 @@ export async function GET(request, { params }) {
     const { id } = await params;
     const user = await authorization.database
       .prepare(
-        `SELECT id, email, handle, display_name, password_hash, avatar_key, phone_number,
+        `SELECT id, email, handle, display_name, password_hash, password_scheme, avatar_key, phone_number,
                 years_experience, is_student, degree, branch, passing_year, preferred_roles,
                 instagram_url, linkedin_url, leetcode_url, portfolio_url,
                 is_placed, account_status, approval_status, created_at
@@ -87,6 +87,7 @@ export async function GET(request, { params }) {
         isPlaced: user.is_placed === 1,
         accountStatus: user.account_status,
         approvalStatus: user.approval_status,
+        passwordResetRequired: user.password_scheme !== PASSWORD_HASH_SCHEME,
         createdAt: user.created_at,
         appliedJobs: appliedJobs.results.map((job) => ({
           id: job.id,
@@ -122,7 +123,15 @@ export async function PATCH(request, { params }) {
   } catch {
     return NextResponse.json({ success: false, error: "A valid JSON body is required." }, { status: 400 });
   }
-  if (!body || (body.approvalStatus === undefined && !["active", "on_hold", "deactivated"].includes(body.accountStatus))) {
+  const isPasswordReset = body && Object.prototype.hasOwnProperty.call(body, "password");
+  if (
+    !body
+    || (
+      body.approvalStatus === undefined
+      && !["active", "on_hold", "deactivated"].includes(body.accountStatus)
+      && !isPasswordReset
+    )
+  ) {
     return NextResponse.json({ success: false, error: "Choose a valid user account status." }, { status: 400 });
   }
 
@@ -135,6 +144,39 @@ export async function PATCH(request, { params }) {
     if (!user) {
       return NextResponse.json({ success: false, error: "User not found." }, { status: 404 });
     }
+    if (isPasswordReset) {
+      if (body.accountStatus !== undefined || body.approvalStatus !== undefined) {
+        return NextResponse.json({ success: false, error: "Reset the password separately from account status." }, { status: 400 });
+      }
+      const password = typeof body.password === "string" ? body.password : "";
+      if (!isValidPassword(password)) {
+        return NextResponse.json({ success: false, error: "Password must be 9–128 characters." }, { status: 400 });
+      }
+      if (user.account_status === "deactivated" && !user.password_hash) {
+        return NextResponse.json({ success: false, error: "Set up this anonymized account before resetting its password." }, { status: 409 });
+      }
+      const adminEmail = await getConfiguredAdminEmail();
+      if (user.email.toLowerCase() === adminEmail) {
+        return NextResponse.json({ success: false, error: "Reset the configured admin password in Worker secrets." }, { status: 409 });
+      }
+
+      const { hash, salt } = await hashPassword(password);
+      await authorization.database.batch([
+        authorization.database
+          .prepare(
+            `UPDATE users
+             SET password_hash = ?, password_salt = ?, password_iterations = ?,
+                 password_scheme = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+             WHERE id = ?`,
+          )
+          .bind(hash, salt, PASSWORD_ITERATIONS, PASSWORD_HASH_SCHEME, id),
+        authorization.database
+          .prepare("DELETE FROM user_sessions WHERE user_id = ?")
+          .bind(id),
+      ]);
+      return NextResponse.json({ success: true, passwordReset: true });
+    }
+
     if (body.approvalStatus !== undefined) {
       if (!["pending", "approved"].includes(body.approvalStatus)) {
         return NextResponse.json({ success: false, error: "Choose a valid approval status." }, { status: 400 });
@@ -227,11 +269,11 @@ export async function PATCH(request, { params }) {
         .prepare(
           `UPDATE users
            SET email = ?, handle = ?, display_name = ?, password_hash = ?, password_salt = ?,
-               password_iterations = ?, account_status = 'active',
+               password_iterations = ?, password_scheme = ?, account_status = 'active',
                updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
            WHERE id = ? AND account_status = 'deactivated'`,
         )
-        .bind(email, handle, name, hash, salt, PASSWORD_ITERATIONS, id)
+        .bind(email, handle, name, hash, salt, PASSWORD_ITERATIONS, PASSWORD_HASH_SCHEME, id)
         .run();
     } else {
       if (body.account !== undefined) {
