@@ -1,0 +1,36 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "slipcord",
+  "main": "worker.js",
+  "account_id": "f9645a8479af74898dc3bf50bcf58863",
+  "compatibility_date": "2026-11-14",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "slipcord"
+    }
+  ],
+  "images": {
+    "binding": "IMAGES"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "slipcordlive",
+      "database_id": "edd0c3b3-380f-4bef-83a7-f6d1ae2c18dc",
+      "migrations_dir": "migrations",
+      "remote": true
+    }
+  ],
+  "triggers": {
+    "crons": ["0 * * * *"]
+  }
+}

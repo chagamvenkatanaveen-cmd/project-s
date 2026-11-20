@@ -1,0 +1,3 @@
+ALTER TABLE users
+ADD COLUMN is_placed INTEGER NOT NULL DEFAULT 0
+  CHECK (is_placed IN (0, 1));

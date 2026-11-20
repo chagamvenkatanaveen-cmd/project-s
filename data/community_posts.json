@@ -1,0 +1,163 @@
+[
+  {
+    "id": "post_1794606003420_cdp65",
+    "type": "poll",
+    "title": "",
+    "content": "Who has the better pace battery in Asian conditions right now?",
+    "author": {
+      "name": "Naveen_Analyst",
+      "handle": "cricket_fan",
+      "avatarBg": "from-rose-600 to-orange-500",
+      "badge": "Poll Creator"
+    },
+    "tag": "Discussion",
+    "topic": "#PaceBowling",
+    "matchTag": "ZIM vs AFG",
+    "likes": 2,
+    "views": 1,
+    "createdAt": "2026-11-13T21:40:03.420Z",
+    "poll": {
+      "totalVotes": 1,
+      "options": [
+        {
+          "id": "opt_1",
+          "text": "India (Bumrah, Shami, Siraj)",
+          "votes": 1
+        },
+        {
+          "id": "opt_2",
+          "text": "Pakistan (Shaheen, Naseem, Rauf)",
+          "votes": 0
+        },
+        {
+          "id": "opt_3",
+          "text": "South Africa (Rabada, Jansen, Coetzee)",
+          "votes": 0
+        }
+      ]
+    },
+    "comments": [
+      {
+        "id": "c_1794606003465_p4l4",
+        "author": "CricketLover99",
+        "text": "Bumrah alone changes the whole equation on subcontinental pitches!",
+        "createdAt": "2026-11-13T21:40:03.465Z"
+      }
+    ]
+  },
+  {
+    "id": "post_1794605502286_kxyjo",
+    "type": "discussion",
+    "title": "",
+    "content": "What an intense 2nd Test between Zimbabwe and Afghanistan! Blessing Muzarabani's opening spell was world class.",
+    "author": {
+      "name": "Cricket Fan",
+      "handle": "cricket_fan",
+      "avatarBg": "from-blue-600 to-indigo-600",
+      "badge": "Fan"
+    },
+    "tag": "Discussion",
+    "topic": "#Cricket",
+    "matchTag": "ZIM vs AFG",
+    "likes": 1,
+    "views": 1,
+    "createdAt": "2026-11-13T21:31:42.286Z",
+    "poll": null,
+    "comments": []
+  },
+  {
+    "id": "post_live_1",
+    "type": "poll",
+    "title": "Match Prediction Poll",
+    "content": "Zimbabwe have opted to bat first against Afghanistan in the opening encounter. Who has the tactical edge on this pitch?",
+    "author": {
+      "name": "Vikram Rathore",
+      "handle": "cric_vikram",
+      "avatarBg": "from-rose-600 to-orange-500",
+      "badge": "Stats Expert"
+    },
+    "tag": "Live Match",
+    "topic": "#AFGvsZIM",
+    "matchTag": "AFG vs ZIM",
+    "likes": 48,
+    "views": 612,
+    "createdAt": "2026-11-13T20:30:00.000Z",
+    "poll": {
+      "totalVotes": 142,
+      "options": [
+        {
+          "id": "opt_1",
+          "text": "Afghanistan (Spin Dominance)",
+          "votes": 96
+        },
+        {
+          "id": "opt_2",
+          "text": "Zimbabwe (Pace & Batting Depth)",
+          "votes": 46
+        }
+      ]
+    },
+    "comments": [
+      {
+        "id": "c_1",
+        "author": "Rashid_Army",
+        "text": "The middle overs spin choke will decide this contest!",
+        "createdAt": "2026-11-13T20:45:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "post_art_1",
+    "type": "article",
+    "title": "The Masterclass of Test Match Line & Length in Modern Conditions",
+    "content": "Why are top fast bowlers thriving even on batting-friendly surfaces? The secret lies in release height and subtle wrist adjustments rather than pure velocity.\n\nWhen a bowler attacks the top-of-off fourth stump corridor consistently for 6-8 overs in a spell, the batsman's footwork freezes. Modern ball-tracking data reveals that over 65% of Test dismissals occur between 4.5m and 6.0m pitching lengths. It proves that discipline and patience remain cricket's greatest superpowers.",
+    "author": {
+      "name": "Ananya Joshi",
+      "handle": "cricket_tactics",
+      "avatarBg": "from-blue-600 to-indigo-600",
+      "badge": "Analyst"
+    },
+    "tag": "Analysis",
+    "topic": "#BowlingMastery",
+    "matchTag": "",
+    "likes": 84,
+    "views": 1050,
+    "createdAt": "2026-11-13T19:00:00.000Z",
+    "poll": null,
+    "comments": [
+      {
+        "id": "c_2",
+        "author": "Karthik N",
+        "text": "Brilliant breakdown! Pat Cummins and Jasprit Bumrah are the ultimate examples of this exact principle.",
+        "createdAt": "2026-11-13T19:25:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "post_fan_1",
+    "type": "post",
+    "title": "",
+    "content": "Unpopular opinion: A low-scoring thriller where both teams fight hard for 160 runs is 10x more thrilling than a boundary-fest with 260 runs on a flat deck. The intensity in low-scoring games is pure cricket drama!",
+    "author": {
+      "name": "Samir Khan",
+      "handle": "samir_cric",
+      "avatarBg": "from-emerald-600 to-teal-600",
+      "badge": "Fan"
+    },
+    "tag": "Opinion",
+    "topic": "#T20Cricket",
+    "matchTag": "",
+    "likes": 62,
+    "views": 780,
+    "createdAt": "2026-11-13T18:15:00.000Z",
+    "poll": null,
+    "comments": [
+      {
+        "id": "c_3",
+        "author": "Dev",
+        "text": "100% agreed! Bowlers need something in the pitch to keep the balance alive.",
+        "createdAt": "2026-11-13T18:30:00.000Z"
+      }
+    ]
+  }
+]
